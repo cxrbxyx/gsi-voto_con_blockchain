@@ -110,6 +110,59 @@ class SistemaVotacion:
                 return False
         
         return True
+    
+
+    def mostrar_estructura_cadena(self):
+        """
+        Muestra la estructura completa de la cadena de bloques,
+        incluyendo información detallada de cada bloque.
+        """
+        print("\n=== ESTRUCTURA DE LA CADENA DE BLOQUES ===")
+        
+        if len(self.cadena.cadena) == 0:
+            print("La cadena está vacía.")
+            return
+        
+        for i, bloque in enumerate(self.cadena.cadena):
+            print(f"\n----- BLOQUE #{i} -----")
+            print(f"Índice: {bloque.index}")
+            print(f"Timestamp: {time.ctime(bloque.timestamp)}")
+            print(f"Hash: {bloque.hash_actual[:15]}...") # Mostramos parte del hash para legibilidad
+            print(f"Hash anterior: {bloque.hash_anterior[:15]}...")
+            
+            print(f"Número de votos: {len(bloque.votos)}")
+            
+            if len(bloque.votos) > 0:
+                print("Resumen de votos:")
+                votos_por_candidato = {}
+                for voto in bloque.votos:
+                    id_candidato = voto.get("id_candidato")
+                    if id_candidato in self.candidatos:
+                        nombre = self.candidatos[id_candidato]
+                        if nombre not in votos_por_candidato:
+                            votos_por_candidato[nombre] = 0
+                        votos_por_candidato[nombre] += 1
+                
+                for candidato, num_votos in votos_por_candidato.items():
+                    print(f"  - {candidato}: {num_votos} votos")
+        
+        print("\n----- VOTOS PENDIENTES -----")
+        print(f"Número de votos pendientes: {len(self.cadena.votos_pendientes)}")
+        
+        if len(self.cadena.votos_pendientes) > 0:
+            votos_pendientes_por_candidato = {}
+            for voto in self.cadena.votos_pendientes:
+                id_candidato = voto.get("id_candidato")
+                if id_candidato in self.candidatos:
+                    nombre = self.candidatos[id_candidato]
+                    if nombre not in votos_pendientes_por_candidato:
+                        votos_pendientes_por_candidato[nombre] = 0
+                    votos_pendientes_por_candidato[nombre] += 1
+            
+            for candidato, num_votos in votos_pendientes_por_candidato.items():
+                print(f"  - {candidato}: {num_votos} votos")
+        
+        print("\n=========================================")
 
 def menu():
     print("\n=== SISTEMA DE VOTACIÓN BLOCKCHAIN ===")
@@ -119,6 +172,7 @@ def menu():
     print("4. Ver resultados actuales")
     print("5. Verificar integridad del blockchain")
     print("6. Crear nuevo bloque con votos pendientes")
+    print("7. Mostrar estructura de la cadena")
     print("0. Salir")
     return input("Seleccione una opción: ")
 
@@ -165,6 +219,9 @@ def main():
                 print("Nuevo bloque creado con los votos pendientes.")
             else:
                 print("No hay votos pendientes para crear un nuevo bloque.")
+        
+        elif opcion == "7":
+            sistema.mostrar_estructura_cadena()
                 
         elif opcion == "0":
             print("Gracias por usar el sistema de votación blockchain")
