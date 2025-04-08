@@ -78,7 +78,8 @@ class SistemaVotacion:
             "timestamp": bloque.timestamp,
             "votos": bloque.votos,
             "hash_anterior": bloque.hash_anterior,
-            "hash_actual": bloque.hash_actual
+            "hash_actual": bloque.hash_actual,
+            "tema_votacion": bloque.tema_votacion
         }
     
     def _deserializar_bloque(self, bloque_dict):
@@ -88,7 +89,8 @@ class SistemaVotacion:
             timestamp=bloque_dict["timestamp"],
             votos=bloque_dict["votos"],
             hash_anterior=bloque_dict["hash_anterior"],
-            hash_actual=bloque_dict["hash_actual"]
+            hash_actual=bloque_dict["hash_actual"],
+            tema_votacion=bloque_dict.get("tema_votacion", "No especificado")
         )
     
     def generar_id_votante(self):
@@ -240,10 +242,10 @@ class SistemaVotacion:
             print(f"Error al verificar integridad: {str(e)}")
             return False
     
-    def crear_nuevo_bloque(self):
+    def crear_nuevo_bloque(self, tema_votacion=None):
         """Crea un nuevo bloque con los votos pendientes"""
         try:
-            if self.cadena.agregar_bloque():
+            if self.cadena.agregar_bloque(tema_votacion=tema_votacion):
                 if not self.guardar_datos():
                     print("ADVERTENCIA: No se pudieron guardar los cambios en el archivo")
                 return True
@@ -267,6 +269,7 @@ class SistemaVotacion:
             for i, bloque in enumerate(self.cadena.cadena):
                 print(f"\n----- BLOQUE #{i} -----")
                 print(f"Índice: {bloque.index}")
+                print(f"Tema de votación: {bloque.tema_votacion}")
                 print(f"Timestamp: {time.ctime(bloque.timestamp)}")
                 print(f"Hash: {bloque.hash_actual[:15]}...") # Mostramos parte del hash para legibilidad
                 print(f"Hash anterior: {bloque.hash_anterior[:15]}...")

@@ -75,10 +75,24 @@ def main():
                     print("ALERTA: La cadena de bloques ha sido manipulada.")
                     
             elif opcion == "6":
-                if sistema.crear_nuevo_bloque():
-                    print("Nuevo bloque creado con los votos pendientes.")
-                else:
-                    print("No hay votos pendientes para crear un nuevo bloque.")
+                try:
+                    # Preguntar por el tema de la votación
+                    print("\nCreación de nuevo bloque:")
+                    usar_tema = input("¿Desea especificar un tema para esta votación? (s/n): ").lower()
+                    
+                    if usar_tema == 's':
+                        tema = input("Ingrese el tema de la votación: ")
+                        if sistema.crear_nuevo_bloque(tema_votacion=tema):
+                            print(f"Nuevo bloque creado con los votos pendientes. Tema: '{tema}'")
+                        else:
+                            print("No hay votos pendientes para crear un nuevo bloque.")
+                    else:
+                        if sistema.crear_nuevo_bloque():
+                            print("Nuevo bloque creado con los votos pendientes.")
+                        else:
+                            print("No hay votos pendientes para crear un nuevo bloque.")
+                except Exception as e:
+                    print(f"Error al crear bloque: {str(e)}")
             
             elif opcion == "7":
                 sistema.mostrar_estructura_cadena()
