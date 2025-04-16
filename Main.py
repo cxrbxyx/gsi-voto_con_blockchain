@@ -23,36 +23,60 @@ def main():
             
             if opcion == "1":
                 try:
-                    nombre = input("Ingrese nombre del votante: ")
+                    nombre = input("Introduzca nombre del votante: ")
                     sistema.registrar_votante(nombre)
                 except Exception as e:
                     print(f"Error: {str(e)}")
                 
             elif opcion == "2":
                 try:
-                    nombre = input("Ingrese nombre del candidato: ")
+                    nombre = input("Introduzca nombre del candidato: ")
                     sistema.registrar_candidato(nombre)
                 except Exception as e:
                     print(f"Error: {str(e)}")
                 
             elif opcion == "3":
                 try:
+                    # Preguntar si quiere usar un tema específico para esta votación
+                    print("\nEmisión de voto:")
+                    usar_tema = input("¿Desea especificar un tema para esta votación? (s/n): ").lower()
+                    
+                    tema_votacion = None
+                    if usar_tema == 's':
+                        tema_votacion = input("Introduzca el tema de la votación: ")
+                        
                     # Mostrar lista de votantes
                     print("\nVotantes registrados:")
-                    for id_votante, datos in sistema.votantes_registrados.items():
-                        estado = "Ya votó" if datos["ha_votado"] else "No ha votado"
-                        print(f"ID: {id_votante}, Nombre: {datos['nombre']} - {estado}")
+                    votantes_disponibles = []
                     
-                    id_votante = input("\nIngrese ID del votante: ")
+                    for id_votante, datos in sistema.votantes_registrados.items():
+                        # Si no hay tema específico, usar el tema general
+                        tema_actual = tema_votacion if tema_votacion is not None else sistema.cadena.tema_votacion
+                        
+                        # Verificar si el votante ya votó en este tema
+                        ya_voto = tema_actual in datos["temas_votados"]
+                        estado = f"Ya ha votado en '{tema_actual}'" if ya_voto else "No ha votado en este tema"
+                        
+                        print(f"ID: {id_votante}, Nombre: {datos['nombre']} - {estado}")
+                        
+                        if not ya_voto:
+                            votantes_disponibles.append(id_votante)
+                    
+                    if not votantes_disponibles:
+                        print("\nNo hay votantes disponibles para esta votación.")
+                        continue
+                        
+                    id_votante = input("\nIntroduzca ID del votante: ")
                     
                     # Verificar si el votante existe
                     if id_votante not in sistema.votantes_registrados:
                         print("Error: ID de votante no válido")
                         continue
                     
-                    # Verificar si ya votó
-                    if sistema.votantes_registrados[id_votante]["ha_votado"]:
-                        print("Error: Este votante ya emitió su voto")
+                    # Verificar si ya votó en este tema
+                    tema_actual = tema_votacion if tema_votacion is not None else sistema.cadena.tema_votacion
+                    if tema_actual in sistema.votantes_registrados[id_votante]["temas_votados"]:
+                        print(f"Error: Este votante ya emitió su voto en la votación '{tema_actual}'")
                         continue
                     
                     # Mostrar candidatos disponibles
@@ -60,8 +84,8 @@ def main():
                     for id_cand, nombre in sistema.candidatos.items():
                         print(f"ID: {id_cand}, Nombre: {nombre}")
                     
-                    id_candidato = input("\nIngrese ID del candidato elegido: ")
-                    sistema.emitir_voto(id_votante, id_candidato)
+                    id_candidato = input("\Introduzca ID del candidato elegido: ")
+                    sistema.emitir_voto(id_votante, id_candidato, tema_votacion)
                 except Exception as e:
                     print(f"Error: {str(e)}")
                 
@@ -81,7 +105,7 @@ def main():
                     usar_tema = input("¿Desea especificar un tema para esta votación? (s/n): ").lower()
                     
                     if usar_tema == 's':
-                        tema = input("Ingrese el tema de la votación: ")
+                        tema = input("Introduzca el tema de la votación: ")
                         if sistema.crear_nuevo_bloque(tema_votacion=tema):
                             print(f"Nuevo bloque creado con los votos pendientes. Tema: '{tema}'")
                         else:
@@ -104,8 +128,13 @@ def main():
                     print("No hay votantes registrados.")
                 else:
                     for id_votante, datos in sistema.votantes_registrados.items():
-                        estado = "Ya votó" if datos["ha_votado"] else "No ha votado"
-                        print(f"ID: {id_votante}, Nombre: {datos['nombre']} - {estado}")
+                        print(f"ID: {id_votante}, Nombre: {datos['nombre']}")
+                        if datos["temas_votados"]:
+                            print("  Ha votado en los siguientes temas:")
+                            for tema in datos["temas_votados"]:
+                                print(f"  - {tema}")
+                        else:
+                            print("  No ha participado en ninguna votación")
                 print("---------------------------\n")
             
             elif opcion == "9":

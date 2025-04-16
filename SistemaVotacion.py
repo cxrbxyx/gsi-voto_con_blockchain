@@ -16,7 +16,7 @@ class SistemaVotacion:
             self.cargar_datos()
         else:
             self.cadena = Cadena.Cadena()
-            self.votantes_registrados = {}  # {id_votante: {nombre, ha_votado}}
+            self.votantes_registrados = {}  # {id_votante: {nombre, temas_votados}}
             self.candidatos = {}  # {id_candidato: nombre}
             self.ultimo_id_votante = -1  # Para generar IDs autoincrementales
             self.ultimo_id_candidato = -1  # Para generar IDs autoincrementales
@@ -110,7 +110,7 @@ class SistemaVotacion:
             
             self.votantes_registrados[id_votante] = {
                 "nombre": nombre,
-                "ha_votado": False
+                "temas_votados": []  # Lista de temas en los que ha votado
             }
             
             print(f"Votante {nombre} registrado correctamente con ID {id_votante}")
@@ -138,7 +138,7 @@ class SistemaVotacion:
             print(f"Error al registrar candidato: {str(e)}")
             return None
     
-    def emitir_voto(self, id_votante, id_candidato):
+    def emitir_voto(self, id_votante, id_candidato, tema_votacion=None):
         """Emite un voto verificando que el votante y candidato existan"""
         try:
             # Verificar si el votante está registrado
@@ -146,9 +146,12 @@ class SistemaVotacion:
                 print("Error: Votante no registrado")
                 return False
             
-            # Verificar si el votante ya ha votado
-            if self.votantes_registrados[id_votante]["ha_votado"]:
-                print("Error: Este votante ya ha emitido su voto")
+            # Obtener tema de la votación (si no se especifica, usar el tema general)
+            tema_actual = tema_votacion if tema_votacion is not None else self.cadena.tema_votacion
+            
+            # Verificar si el votante ya ha votado en este tema
+            if tema_actual in self.votantes_registrados[id_votante]["temas_votados"]:
+                print(f"Error: Este votante ya ha emitido su voto en la votación '{tema_actual}'")
                 return False
             
             # Verificar si el candidato existe
@@ -160,21 +163,22 @@ class SistemaVotacion:
             voto = {
                 "timestamp": time.time(),
                 "id_votante_hash": hashlib.sha256(str(id_votante).encode()).hexdigest(),
-                "id_candidato": id_candidato
+                "id_candidato": id_candidato,
+                "tema_votacion": tema_actual
             }
             
-            # Añadir voto a los pendientes y crear un bloque
+            # Añadir voto a los pendientes y registrar que el votante ha participado en este tema
             self.cadena.votos_pendientes.append(voto)
-            self.votantes_registrados[id_votante]["ha_votado"] = True
+            self.votantes_registrados[id_votante]["temas_votados"].append(tema_actual)
             
             # Si hay suficientes votos, crear un nuevo bloque
             if len(self.cadena.votos_pendientes) >= 3:  # Por ejemplo, 3 votos por bloque
-                if self.cadena.agregar_bloque():
-                    print("Voto registrado y nuevo bloque creado")
+                if self.cadena.agregar_bloque(tema_votacion=tema_actual):
+                    print(f"Voto registrado en '{tema_actual}' y nuevo bloque creado")
                 else:
-                    print("Voto registrado, pendiente de inclusión en un bloque")
+                    print(f"Voto registrado en '{tema_actual}', pendiente de inclusión en un bloque")
             else:
-                print("Voto registrado, pendiente de inclusión en un bloque")
+                print(f"Voto registrado en '{tema_actual}', pendiente de inclusión en un bloque")
             
             if not self.guardar_datos():
                 print("ADVERTENCIA: No se pudieron guardar los cambios en el archivo")
@@ -300,7 +304,7 @@ class SistemaVotacion:
                     if id_candidato in self.candidatos:
                         nombre = self.candidatos[id_candidato]
                         if nombre not in votos_pendientes_por_candidato:
-                            votos_pendientes_por_candidato[nombre] = 0
+                            votos_pendientes_por_candidato = 0
                         votos_pendientes_por_candidato[nombre] += 1
                 
                 for candidato, num_votos in votos_pendientes_por_candidato.items():
@@ -314,14 +318,14 @@ class SistemaVotacion:
     
     def resetear_estado_votantes(self):
         """
-        Resetea el estado 'ha_votado' de todos los votantes 
+        Resetea los temas en los que han votado los votantes
         para permitir votar de nuevo en una nueva ejecución.
         """
         try:
             cambios = False
             for id_votante in self.votantes_registrados:
-                if self.votantes_registrados[id_votante]["ha_votado"]:
-                    self.votantes_registrados[id_votante]["ha_votado"] = False
+                if self.votantes_registrados[id_votante]["temas_votados"]:
+                    self.votantes_registrados[id_votante]["temas_votados"] = []
                     cambios = True
             
             if cambios:
