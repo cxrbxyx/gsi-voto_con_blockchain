@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Votación Blockchain por Temas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Sistema de Votación con Blockchain</h1>
+    </header>
+
+    <!-- Área de Mensajes -->
+    <div id="status-messages" class="status"></div>
+
+    <div class="container">
+        <!-- Sección de Gestión de Votación -->
+        <div class="section" id="gestion-votacion">
+            <h2>Gestión de Votación</h2>
+
+            <!-- Iniciar Votación -->
+            <div class="form-group" id="iniciar-votacion-section">
+                <h3>1. Iniciar Nueva Votación</h3>
+                <input type="text" id="tema-votacion-input" placeholder="Tema de la votación">
+                <button onclick="iniciarVotacion()">Iniciar Votación</button>
+            </div>
+
+            <!-- Estado Votación Activa -->
+            <div class="form-group" id="estado-votacion-activa" style="display: none;">
+                <h3>Votación Activa</h3>
+                <p><strong>Tema:</strong> <span id="tema-activo-span"></span></p>
+                <p><strong>Candidatos Añadidos:</strong></p>
+                <ul id="candidatos-activos-lista"></ul>
+                <p><strong>Votos Recibidos:</strong> <span id="votos-recibidos-span">0</span></p>
+                <p><strong>Votantes Participantes:</strong> <span id="votantes-participantes-span">0</span></p>
+            </div>
+
+            <!-- Añadir Candidato a Votación Activa -->
+            <div class="form-group" id="agregar-candidato-section" style="display: none;">
+                 <h3>2. Añadir Candidatos a '<span class="tema-activo-ref"></span>'</h3>
+                <input type="text" id="nombre-candidato-activo" placeholder="Nombre del Candidato">
+                <button onclick="agregarCandidatoAVotacion()">Añadir Candidato</button>
+                <small>(Se añadirá a la votación activa y se registrará globalmente si es nuevo)</small>
+            </div>
+
+            <!-- Emitir Voto -->
+            <div class="form-group" id="emitir-voto-section" style="display: none;">
+                <h3>3. Emitir Voto para '<span class="tema-activo-ref"></span>'</h3>
+                <input type="text" id="id-votante-input" placeholder="Identificación del Votante (e.g., DNI)">
+                <div>
+                    <label for="select-candidato-activo">Candidato:</label>
+                    <select id="select-candidato-activo">
+                        <option value="" disabled selected>Selecciona un candidato</option>
+                    </select>
+                </div>
+                <button onclick="emitirVotoSesion()">Emitir Voto</button>
+            </div>
+
+            <!-- Finalizar Votación -->
+            <div class="form-group" id="finalizar-votacion-section" style="display: none;">
+                <h3>4. Finalizar Votación '<span class="tema-activo-ref"></span>'</h3>
+                <button onclick="finalizarVotacion()">Finalizar y Crear Bloque</button>
+                <small>(Se creará un bloque con los votos emitidos para este tema)</small>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Sección de Consultas -->
+        <div class="section">
+            <h2>Consultas</h2>
+
+            <!-- Resultados -->
+            <div class="form-group">
+                <h3>Resultados</h3>
+                <input type="text" id="tema-resultados-filtro" placeholder="Filtrar por tema (opcional)">
+                <button onclick="obtenerResultados()">Ver Resultados</button>
+                <div id="resultados-container">
+                    <h4>Resultados:</h4>
+                    <div id="resultados"></div>
+                    <div id="info-resultados-adicional"></div>
+                </div>
+            </div>
+
+            <!-- Cadena de Bloques -->
+            <div class="form-group">
+                <h3>Cadena de Bloques</h3>
+                <button onclick="obtenerCadena()">Ver Cadena</button>
+                <button onclick="verificarIntegridad()">Verificar Integridad</button>
+                <div id="bloques-container">
+                    <h4>Bloques Minados:</h4>
+                    <pre id="cadena-bloques-pre"></pre>
+                </div>
+            </div>
+
+             <!-- Candidatos Globales -->
+            <div class="form-group">
+                <h3>Candidatos Globales</h3>
+                 <button onclick="cargarCandidatosGlobales()">Ver Candidatos Globales</button>
+                 <ul id="lista-candidatos-globales"></ul>
+                 <!-- Opcional: Formulario para añadir candidato global directamente -->
+                 <!--
+                 <div>
+                     <input type="text" id="nombre-candidato-global" placeholder="Nombre Candidato Global">
+                     <button onclick="registrarCandidatoGlobal()">Registrar Globalmente</button>
+                 </div>
+                 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
