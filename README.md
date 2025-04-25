@@ -10,7 +10,7 @@ Este manual describe cómo instalar y utilizar el sistema de votación basado en
 
 1.  **Clonar el repositorio (si aún no lo has hecho):**
     ```
-    git clone <URL_DEL_REPOSITORIO>
+    git clone https://github.com/cxrbxyx/gsi-voto_con_blockchain.git
     cd gsi-voto_con_blockchain
     ```
 
