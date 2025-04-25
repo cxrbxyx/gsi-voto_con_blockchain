@@ -19,3 +19,4 @@ var/
 .installed.cfg
 *.egg
 blockchain_votacion.json
+*.txt

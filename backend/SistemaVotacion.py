@@ -192,6 +192,16 @@ class SistemaVotacion:
 
         id_votante_hash = hashlib.sha256(str(id_votante_externo).encode()).hexdigest()
 
+        
+        for bloque in self.cadena.cadena[1:]: # Omitir bloque génesis
+            if bloque.tema_votacion == self.tema_activo:
+                for voto_en_bloque in bloque.votos:
+                    if voto_en_bloque.get("id_votante_hash") == id_votante_hash:
+                        print(f"Error: El votante con ID (hash) {id_votante_hash[:8]}... ya ha votado anteriormente para el tema '{self.tema_activo}' (encontrado en bloque {bloque.index}).")
+                        return False
+        
+
+        # Verificar si el votante ya ha votado en la sesión actual
         if id_votante_hash in self.votantes_sesion_actual:
             print(f"Error: El votante con ID (hash) {id_votante_hash[:8]}... ya ha votado en esta sesión para '{self.tema_activo}'.")
             return False

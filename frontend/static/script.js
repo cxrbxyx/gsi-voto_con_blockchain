@@ -36,21 +36,9 @@ async function fetchData(url, options = {}) {
 }
 
 function mostrarMensaje(mensaje, tipo = 'info') {
-    const statusDiv = document.getElementById('status-messages');
-    if (!statusDiv) {
-        console.error("Elemento 'status-messages' no encontrado.");
-        alert(`${tipo.toUpperCase()}: ${mensaje}`); // Fallback a alert
-        return;
-    }
-    statusDiv.textContent = mensaje;
-    statusDiv.className = `status ${tipo}`;
-    // Opcional: ocultar el mensaje después de unos segundos
-    setTimeout(() => {
-        if (statusDiv.textContent === mensaje) { // Solo limpia si el mensaje no ha cambiado
-            statusDiv.textContent = '';
-            statusDiv.className = 'status';
-        }
-    }, 7000); // Aumentado a 7 segundos
+    // Muestra el mensaje directamente en un cuadro de diálogo emergente (alert)
+    // El mensaje ya viene formateado desde fetchData o la llamada directa.
+    alert(mensaje);
 }
 
 function actualizarSelect(selectId, data, valueField, textField, placeholder, clearFirst = true) {

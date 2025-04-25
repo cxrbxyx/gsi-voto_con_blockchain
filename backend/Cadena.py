@@ -1,7 +1,7 @@
 import Bloque
 
 class Cadena:
-    def __init__(self, tema_votacion="Votación General"):
+    def __init__(self, tema_votacion="Bloque Genesis"):
         self.cadena = []
         self.tema_votacion = tema_votacion
         self.cadena.append(Bloque.Bloque.crear_bloque_genesis(self.tema_votacion))

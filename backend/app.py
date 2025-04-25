@@ -26,7 +26,13 @@ sistema_votacion = SistemaVotacion.SistemaVotacion()
 
 @app.route('/votacion/iniciar', methods=['POST'])
 def iniciar_votacion_api():
-    """Inicia una nueva sesión de votación con un tema."""
+    """Inicia una nueva sesión de votación con un tema, verificando la integridad primero."""
+    # Verificar la integridad de la cadena antes de iniciar una nueva votación
+    if not sistema_votacion.verificar_integridad_cadena():
+        print("Error de integridad detectado. Cancelando inicio de votación.")
+        return jsonify({"error": "Error de integridad de la blockchain detectado. No se puede iniciar una nueva votación."}), 500 # Internal Server Error
+
+    # Si la cadena es válida, proceder a iniciar la votación
     data = request.get_json()
     tema = data.get('tema')
     if not tema:
@@ -35,8 +41,6 @@ def iniciar_votacion_api():
     if sistema_votacion.iniciar_votacion(tema):
         return jsonify({"mensaje": f"Votación iniciada para el tema: '{tema}'"}), 200
     else:
-        # El método iniciar_votacion ya imprime errores específicos
-        # Podríamos capturar esos mensajes si quisiéramos devolverlos aquí
         return jsonify({"error": "No se pudo iniciar la votación (verifique si ya hay una activa)"}), 409 # Conflict
 
 @app.route('/votacion/candidato', methods=['POST'])
